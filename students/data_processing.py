@@ -35,10 +35,16 @@ def load_heart_disease_data(filepath):
     >>> df.shape
     (270, 15)
     """
+    try:
+        df = pd.read_csv(filepath)
+    except FileNotFoundError:
+        print("The file could not be located. Please ensure the path is complete and correct.")
+    except ValueError:
+        print("The file was found but could not be read. Please ensure you have located the correct file and that it is intact.")
     # Hint: Use pd.read_csv()
     # Hint: Check if file exists and raise helpful error if not
     # TODO: Implement data loading
-    pass
+    return df
 
 
 def preprocess_data(df):
@@ -56,10 +62,25 @@ def preprocess_data(df):
         Cleaned and preprocessed dataset
     """
     # TODO: Implement preprocessing
+
+    data_copy = df.copy()
     # - Handle missing values
+    # impute: trestbps, col, thalch, oldpeak
+    data_copy["trestbps"].fillna(data_copy["trestbps"].mean(), inplace = True)
+    data_copy["col"].fillna(data_copy["col"].mean(), inplace = True)
+    data_copy["thalch"].fillna(data_copy["thalch"].mean(), inplace = True)
+    data_copy["oldpeak"].fillna(data_copy["oldpeak"].mean(), inplace = True)
+    # drop rows: fbs, restecg, exang
+    data_dropped = data_copy["fbs"].drop_duplicates()
+    data_dropped = data_dropped["restecg"].drop_duplicates()
+    data_dropped = data_dropped["exang"].drop_duplicates()
+    # drop column: ca, thal
+    data_dropped = data_dropped.drop(columns = ["ca", "thal", "slope"])
     # - Encode categorical variables (e.g., sex, cp, fbs, etc.)
+    data_encoded = pd.get_dummies(data_dropped, columns = ["sex", "cp", "fbs", "exang", "restecg", "dataset"])
     # - Ensure all columns are numeric
-    pass
+    return data_encoded
+
 
 
 def prepare_regression_data(df, target='chol'):
@@ -79,10 +100,12 @@ def prepare_regression_data(df, target='chol'):
         (X, y) feature matrix and target vector
     """
     # TODO: Implement regression data preparation
-    # - Remove rows with missing chol values
+    # - Remove rows with missing chol values -> imputed in previous step
     # - Exclude chol from features
+    X = df.drop(columns = ["chol"])
+    Y = df["chol"]
     # - Return X (features) and y (target)
-    pass
+    return X, Y
 
 
 def prepare_classification_data(df, target='num'):
@@ -103,10 +126,13 @@ def prepare_classification_data(df, target='num'):
     """
     # TODO: Implement classification data preparation
     # - Binarize target variable
+    df["num"] = (df["num"] >= 2).astype(int)
     # - Exclude target from features
+    X = df.drop(columns = ["chol", "num"])
     # - Exclude chol from features
+    Y = df["num"]
     # - Return X (features) and y (target)
-    pass
+    return X, Y
 
 
 def split_and_scale(X, y, test_size=0.2, random_state=42):
@@ -132,7 +158,12 @@ def split_and_scale(X, y, test_size=0.2, random_state=42):
     """
     # TODO: Implement train/test split and scaling
     # - Use train_test_split with provided parameters
+    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
     # - Fit StandardScaler on training data only
+    scaler = StandardScaler
+    scaler.fit(X_train)
     # - Transform both train and test data
+    X_train_scaled = scaler.transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
     # - Return scaled data and scaler object
-    pass
+    return X_train_scaled, X_test_scaled, Y_train, Y_test, scaler
