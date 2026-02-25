@@ -39,10 +39,13 @@ def train_logistic_regression_grid(X_train, y_train, param_grid=None):
     
     # TODO: Implement grid search for logistic regression
     # - Create LogisticRegression with max_iter=1000
+    log_reg = LogisticRegression(max_iter = 1000)
     # - Use GridSearchCV with cv=5
+    grid_search = GridSearchCV(log_reg, cv = 5)
     # - Fit on training data
+    grid_search.fit(X_train, y_train)
     # - Return fitted GridSearchCV object
-    pass
+    return grid_search
 
 
 def train_knn_grid(X_train, y_train, param_grid=None):
@@ -75,10 +78,13 @@ def train_knn_grid(X_train, y_train, param_grid=None):
     
     # TODO: Implement grid search for k-NN
     # - Create KNeighborsClassifier
+    kNN = KNeighborsClassifier()
     # - Use GridSearchCV with cv=5
+    grid_search = GridSearchCV(kNN, cv = 5)
     # - Fit on training data
+    grid_search.fit(X_train, y_train)
     # - Return fitted GridSearchCV object
-    pass
+    return grid_search
 
 
 def get_best_logistic_regression(X_train, y_train, X_test, y_test, param_grid=None):
@@ -108,9 +114,11 @@ def get_best_logistic_regression(X_train, y_train, X_test, y_test, param_grid=No
     """
     # TODO: Implement best model retrieval
     # - Use train_logistic_regression_grid
+    grid_result = train_logistic_regression_grid(X_train, y_train, param_grid=None)
     # - Extract best model
+    logistic_results = {"model":grid_result.best_estimator_, "best_params":grid_result.best_params_, "cv_results_df":grid_result.cv_results_}
     # - Return dictionary
-    pass
+    return logistic_results
 
 
 def get_best_knn(X_train, y_train, X_test, y_test, param_grid=None):
@@ -141,6 +149,8 @@ def get_best_knn(X_train, y_train, X_test, y_test, param_grid=None):
     """
     # TODO: Implement best model retrieval
     # - Use train_knn_grid
+    kNN_grid = train_knn_grid(X_train, y_train, param_grid=None)
     # - Extract best model and best_k
+    kNN_results = {"model":kNN_grid.best_estimator_, "best_params":kNN_grid.best_params_, "best_k":kNN_grid.best_params_["n_neighbors"], "cv_results_df":kNN_grid.cv_results_}
     # - Return dictionary
-    pass
+    return kNN_results
