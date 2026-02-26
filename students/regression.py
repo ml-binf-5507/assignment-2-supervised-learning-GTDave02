@@ -93,7 +93,8 @@ def create_r2_heatmap(results_df, l1_ratios, alphas, output_path=None):
     plt.title("ElasticNet R-Squared Scores")
     # - Add colorbar
     # - Save to output_path if provided
-    plt.savefig(output_path)
+    if output_path != None:
+        plt.savefig(output_path)
     # - Return figure object
     return plt
 
