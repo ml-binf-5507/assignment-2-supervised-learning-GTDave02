@@ -66,17 +66,22 @@ def preprocess_data(df):
     data_copy = df.copy()
     # - Handle missing values
     # impute: trestbps, col, thalch, oldpeak
+    # replace missing values with means of the rest of the column
+    # best used where only a small percentage of values are missing (don't impute 30% of the data)
     data_copy["trestbps"].fillna(data_copy["trestbps"].mean(), inplace = True)
     data_copy["col"].fillna(data_copy["col"].mean(), inplace = True)
     data_copy["thalch"].fillna(data_copy["thalch"].mean(), inplace = True)
     data_copy["oldpeak"].fillna(data_copy["oldpeak"].mean(), inplace = True)
     # drop rows: fbs, restecg, exang
+    # 
     data_dropped = data_copy["fbs"].drop_duplicates()
     data_dropped = data_dropped["restecg"].drop_duplicates()
     data_dropped = data_dropped["exang"].drop_duplicates()
     # drop column: ca, thal
+    # columns with a large portion of data missing
     data_dropped = data_dropped.drop(columns = ["ca", "thal", "slope"])
     # - Encode categorical variables (e.g., sex, cp, fbs, etc.)
+    # convert to binary, numerical values
     data_encoded = pd.get_dummies(data_dropped, columns = ["sex", "cp", "fbs", "exang", "restecg", "dataset"])
     # - Ensure all columns are numeric
     return data_encoded
@@ -126,7 +131,12 @@ def prepare_classification_data(df, target='num'):
     """
     # TODO: Implement classification data preparation
     # - Binarize target variable
-    df["num"] = (df["num"] >= 2).astype(int)
+    # ie you want to restrict the column that assigned values 0-5 for heart disease presence to just 2 possible numbers
+    # somewhat arbitrary decision to basically decide which values represent patients with heart disease
+    df["num"] = (df["num"] >= 2).astype(int) # checks every value >=2, which is either true or false
+    # returns entire column as a series of True (two or higher) or false (0 or 1)
+    # converts this series into integers (1 or 0 for true or false respectively)
+
     # - Exclude target from features
     X = df.drop(columns = ["chol", "num"])
     # - Exclude chol from features

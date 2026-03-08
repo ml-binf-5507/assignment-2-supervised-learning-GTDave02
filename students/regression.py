@@ -43,13 +43,13 @@ def train_elasticnet_grid(X_train, y_train, l1_ratios, alphas):
 
     for ratio in l1_ratios:
         for alpha in alphas:
-            model = ElasticNet(l1_ratio=ratio, alpha=alpha, max_iter=5000)
-            model.fit(X_train, y_train)
-            ratio_list.append(ratio)
+            model = ElasticNet(l1_ratio=ratio, alpha=alpha, max_iter=5000) # initiate a model for each combination of l1 and alpha
+            model.fit(X_train, y_train) # fit the model
+            ratio_list.append(ratio) # store the current l1, alpha, and model in separate lists
             alpha_list.append(alpha)
             model_list.append(model)
     #   - Calculate R² score on training data
-            r2_value_list.append(r2_score(X_train, y_train))
+            r2_value_list.append(r2_score(X_train, y_train)) 
     #   - Store results
     results_df = {
         "l1_ratio":ratio_list,
@@ -144,7 +144,7 @@ def get_best_elasticnet_model(X_train, y_train, X_test, y_test,
         r2_test = model.score(X_test, y_test)
         r2_test_list.append(r2_test)
     elastic_net_train["test_r2"] = r2_test_list
-    best_model = elastic_net_train.loc[elastic_net_train["test_r2"].idxmax()]
+    best_model = elastic_net_train.loc[elastic_net_train["test_r2"].idxmax()] # returns whichever row of the data frame that contains the highest value in the test_r2 column
     # - Return dictionary with best model and parameters
 
     best_params = {
